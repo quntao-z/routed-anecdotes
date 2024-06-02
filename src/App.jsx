@@ -4,21 +4,25 @@ import {
   Routes, Route, Link
 } from 'react-router-dom'
 
-const Menu = (anecdotes) => {
+const Menu = ({anecdotes, addNew}) => {
   const padding = {
     paddingRight: 5
   }
   return (
-    // <Routes>
-    //   <Route path="/anecdotes" style={padding} element={<AnecdoteList anecdotes={anecdotes}/>}/>
-    //   <Route path="/anecdotes" style={padding} element={<AnecdoteList anecdotes={anecdotes}/>}/>
-    //   <Route path="/anecdotes" style={padding} element={<AnecdoteList anecdotes={anecdotes}/>}/>
-    // </Routes>
-    <div>
-      <a href='#' style={padding}>anecdotes</a>
-      <a href='#' style={padding}>create new</a>
-      <a href='#' style={padding}>about</a>
-    </div>
+    <Router>
+      <div>
+        <Link href='#' style={padding} to="/">anecdotes</Link>
+        <Link href='#' style={padding}to="/create new">create new</Link>
+        <Link href='#' style={padding}to="/about">about</Link>
+      </div>
+
+      <Routes>
+        <Route path="/" element={<AnecdoteList anecdotes={anecdotes}/>}/>
+        <Route path="/create new" element={<CreateNew addNew={addNew}/>}/>
+        <Route path="/about" element={<About />}/>
+      </Routes>
+    </Router>
+
   )
 }
 
@@ -134,10 +138,7 @@ const App = () => {
   return (
     <div>
       <h1>Software anecdotes</h1>
-      <Menu anecdotes={anecdotes}/>
-      <AnecdoteList anecdotes={anecdotes} />
-      <About />
-      <CreateNew addNew={addNew} />
+      <Menu anecdotes={anecdotes} addNew={addNew}/>
       <Footer />
     </div>
   )
