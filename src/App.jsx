@@ -2,7 +2,8 @@ import { useState } from 'react'
 import {
   BrowserRouter as Router,
   Routes, Route, Link,
-  useMatch
+  useMatch,
+  useNavigate
 } from 'react-router-dom'
 
 const Menu = ({anecdotes, addNew}) => {
@@ -10,11 +11,25 @@ const Menu = ({anecdotes, addNew}) => {
     paddingRight: 5
   }
 
+  const [notification, setNotification] = useState('')
+
   const match = useMatch('/anecdotes/:id')
 
   const anecdote = match 
     ? anecdotes.find(anecdote => anecdote.id === Number(match.params.id))
     : null
+  
+  const handleSubmit = (e, content, author, info) => {
+    e.preventDefault()
+    addNew({
+      content,
+      author,
+      info,
+      votes: 0
+    })
+    setNotification(`A new anecdote "${content}" created!`);
+    setTimeout(() => setNotification(''), 5000);
+  }
 
   return (
     <div>
@@ -23,11 +38,13 @@ const Menu = ({anecdotes, addNew}) => {
         <Link href='#' style={padding}to="/create new">create new</Link>
         <Link href='#' style={padding}to="/about">about</Link>
       </div>
+      
+      <p>{notification}</p>
 
       <Routes> 
         <Route path="/" element={<AnecdoteList anecdotes={anecdotes}/>}/>
         <Route path="/anecdotes/:id" element={<AnecdoteDetail anecdote={anecdote}/>}/>
-        <Route path="/create new" element={<CreateNew addNew={addNew}/>}/>
+        <Route path="/create new" element={<CreateNew handleSubmit={handleSubmit}/>}/>
         <Route path="/about" element={<About />}/>
       </Routes>
       </div>
@@ -82,25 +99,22 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
+  const navigate = useNavigate()
+
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('')
   const [info, setInfo] = useState('')
 
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    props.addNew({
-      content,
-      author,
-      info,
-      votes: 0
-    })
+  const submitAndNavigate = (e, content, author, info) => {
+    props.handleSubmit(e, content, author, info)
+    navigate('/')
   }
+
 
   return (
     <div>
       <h2>create a new anecdote</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => submitAndNavigate(e, content, author, info)}>
         <div>
           content
           <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
@@ -137,8 +151,6 @@ const App = () => {
       id: 2
     }
   ])
-
-  const [notification, setNotification] = useState('')
 
   const addNew = (anecdote) => {
     anecdote.id = Math.round(Math.random() * 10000)
